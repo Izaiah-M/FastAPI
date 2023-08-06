@@ -7,7 +7,7 @@ from helpers.status_codes import STATUS_CODE_200, STATUS_CODE_MISSING_FIELDS_400
 
 user_router = APIRouter(prefix="/api/users")
 
-@user_router.post("/create")
+@user_router.post("/create", status_code=201)
 async def create_user(user: User):
     if not user.username or not user.email or not user.password:
         return STATUS_CODE_MISSING_FIELDS_400
