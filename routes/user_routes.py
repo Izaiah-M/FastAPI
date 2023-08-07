@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from models.Users import User
 from serializers.user_serializer import single_user_serializer, many_users_serializer
 from config.db_config import users_collection
-from helpers.status_codes import STATUS_CODE_200, STATUS_CODE_MISSING_FIELDS_400
+from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400
 
 
 user_router = APIRouter(prefix="/api/users")
@@ -17,7 +17,7 @@ async def create_user(user: User):
 
     newUser = single_user_serializer(users_collection.find_one({"_id": new_user_id}))
 
-    return STATUS_CODE_200(newUser)
+    return STATUS_CODE_201(newUser)
 
 
 @user_router.get("/")

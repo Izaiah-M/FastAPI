@@ -1,8 +1,8 @@
 from typing import Optional
 from fastapi.responses import JSONResponse
 
-def STATUS_CODE_200(data=None):
-    return JSONResponse(content={"message": "Success", "data": data}, status_code=200)
+def STATUS_CODE_201(data=None):
+    return JSONResponse(content={"message": "Successfully Updated", "data": data}, status_code=201)
 
 
 STATUS_CODE_400 = JSONResponse(content={"message": "Bad Request"}, status_code=400)
