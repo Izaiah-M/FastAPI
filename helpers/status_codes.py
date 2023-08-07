@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi.responses import JSONResponse
 
 def STATUS_CODE_201(data=None):
