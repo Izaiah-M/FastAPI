@@ -1,14 +1,11 @@
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 
 try:
-    client = MongoClient("mongodb://localhost:27017")
+    client = AsyncIOMotorClient("mongodb://localhost:27017")
+    db = client.Trial
+    users_collection = db["Users"]
 
     print("Successfully connected to MongoDB")
-
-
-    db = client.Trial
-
-    users_collection = db["Users"]
 
 except Exception as err:
     print(f"Error connecting to MongoDB - {err}")

@@ -7,35 +7,45 @@ from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400
 from helpers.Hashing import get_password_hash, verify_password
 
 
-user_router = APIRouter(prefix="/api/auth/users")
+user_router = APIRouter(prefix="/api/auth/users", tags=["Users"])
 
 @user_router.post("/create", status_code=201)
 async def create_user(user: User):
     if not user.username or not user.email or not user.password:
         return STATUS_CODE_MISSING_FIELDS_400
     
-    hashed_pwd = get_password_hash(user.password)
+    try:
+        isExisting = await users_collection.find_one({"email": user.email})
+        print("isExisting:", isExisting)
 
-    created_user = {
-        "username": user.username,
-        "email": user.email,
-        "password": hashed_pwd
-    }
+        if isExisting:
+            return JSONResponse(content={"message": "User already exists"}, status_code=400)
 
+        hashed_pwd = get_password_hash(user.password)
 
-    new = users_collection.insert_one(created_user)
-    new_user_id = new.inserted_id
+        created_user = {
+            "username": user.username,
+            "email": user.email,
+            "password": hashed_pwd
+        }
 
-    newUser = single_user_serializer(users_collection.find_one({"_id": new_user_id}))
+        new = await users_collection.insert_one(created_user)
+        new_user_id = new.inserted_id
 
-    return STATUS_CODE_201(newUser)
+        newUser = await single_user_serializer(users_collection.find_one({"_id": new_user_id}))
+
+        return STATUS_CODE_201(newUser)
+    except Exception as e:
+        print("Exception:", e)
+        return {"message": "Something went wrong :( pleease try again later"}
+
 
 @user_router.post("/login", status_code=200)
 async def login(login: Login):
     if not login.username or not login.password:
         return STATUS_CODE_MISSING_FIELDS_400
     
-    user = users_collection.find_one({"username": login.username})
+    user = await users_collection.find_one({"username": login.username})
 
     # print(user)
 
