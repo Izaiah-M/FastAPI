@@ -34,6 +34,7 @@ async def create_user(user: User = Body(...)):
         newUser = await users_collection.find_one({"_id": new_user_id})
 
         res = await single_user_serializer(newUser)
+        
         return STATUS_CODE_201(res)
     except Exception as e:
         print("Exception:", e)
