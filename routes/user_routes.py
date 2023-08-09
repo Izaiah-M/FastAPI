@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
 from models.Users import User, Login
 from serializers.user_serializer import single_user_serializer, many_users_serializer
@@ -10,7 +10,7 @@ from helpers.Hashing import get_password_hash, verify_password
 user_router = APIRouter(prefix="/api/auth/users", tags=["Users"])
 
 @user_router.post("/create", status_code=201)
-async def create_user(user: User):
+async def create_user(user: User = Body(...)):
     if not user.username or not user.email or not user.password:
         return STATUS_CODE_MISSING_FIELDS_400
     
