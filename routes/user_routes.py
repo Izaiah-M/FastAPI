@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from models.Users import User, Login
 from serializers.user_serializer import single_user_serializer, many_users_serializer
 from config.db_config import users_collection
-from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_404
+from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_404, STATUS_CODE_500
 from helpers.Hashing import get_password_hash, verify_password
 
 
@@ -15,29 +15,29 @@ async def create_user(user: User):
         return STATUS_CODE_MISSING_FIELDS_400
     
     try:
-        isExisting = await users_collection.find_one({"email": user.email})
-        print("isExisting:", isExisting)
+        isExisting_doc = await users_collection.find_one({"email": user.email})
 
-        if isExisting:
-            return JSONResponse(content={"message": "User already exists"}, status_code=400)
+        if isExisting_doc:
+                return JSONResponse(content={"message": "User already exists"}, status_code=400)
 
         hashed_pwd = get_password_hash(user.password)
 
         created_user = {
-            "username": user.username,
-            "email": user.email,
-            "password": hashed_pwd
-        }
+                    "username": user.username,
+                    "email": user.email,
+                    "password": hashed_pwd
+                }
 
         new = await users_collection.insert_one(created_user)
         new_user_id = new.inserted_id
 
-        newUser = await single_user_serializer(users_collection.find_one({"_id": new_user_id}))
+        newUser = await users_collection.find_one({"_id": new_user_id})
 
-        return STATUS_CODE_201(newUser)
+        res = await single_user_serializer(newUser)
+        return STATUS_CODE_201(res)
     except Exception as e:
         print("Exception:", e)
-        return {"message": "Something went wrong :( pleease try again later"}
+        return STATUS_CODE_500
 
 
 @user_router.post("/login", status_code=200)
