@@ -14,27 +14,27 @@ async def create_user(user: User = Body(...)):
     if not user.username or not user.email or not user.password:
         return STATUS_CODE_MISSING_FIELDS_400
     
-    try:
-        isExisting_doc = await users_collection.find_one({"email": user.email})
+    
+    isExisting_doc = await users_collection.find_one({"email": user.email})
 
-        if isExisting_doc:
-                return JSONResponse(content={"message": "User already exists"}, status_code=400)
+    if isExisting_doc:
+            return JSONResponse(content={"message": "User already exists"}, status_code=400)
 
-        hashed_pwd = get_password_hash(user.password)
+    hashed_pwd = get_password_hash(user.password)
 
-        created_user = {
+    created_user = {
                     "username": user.username,
                     "email": user.email,
                     "password": hashed_pwd
                 }
-
+    try:
         new = await users_collection.insert_one(created_user)
         new_user_id = new.inserted_id
 
         newUser = await users_collection.find_one({"_id": new_user_id})
 
         res = await single_user_serializer(newUser)
-        
+
         return STATUS_CODE_201(res)
     except Exception as e:
         print("Exception:", e)
