@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 
+# Field(...) means that it is required
+
 class User(BaseModel):
     username: str = Field(...)
     email: EmailStr = Field(...)
