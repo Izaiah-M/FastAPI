@@ -16,7 +16,7 @@ async def create_user(user: User = Body(...)):
         return STATUS_CODE_MISSING_FIELDS_400
     
     
-    isExisting_doc = get_one(users_collection, {"email": user.email})
+    isExisting_doc = await get_one(users_collection, {"email": user.email})
 
     if isExisting_doc:
             return JSONResponse(content={"message": "User already exists"}, status_code=400)
@@ -47,7 +47,7 @@ async def login(login: Login):
     if not login.username or not login.password:
         return STATUS_CODE_MISSING_FIELDS_400
     
-    user = await users_collection.find_one({"username": login.username})
+    user = await get_one(users_collection, {"username": login.username})
 
     # print(user)
 
