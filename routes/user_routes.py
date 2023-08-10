@@ -5,6 +5,7 @@ from serializers.user_serializer import single_user_serializer, many_users_seria
 from config.db_config import users_collection
 from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_404, STATUS_CODE_500
 from helpers.Hashing import get_password_hash, verify_password
+from repository.repository import get_all, get_one
 
 
 user_router = APIRouter(prefix="/api/auth/users", tags=["Users"])
@@ -15,7 +16,7 @@ async def create_user(user: User = Body(...)):
         return STATUS_CODE_MISSING_FIELDS_400
     
     
-    isExisting_doc = await users_collection.find_one({"email": user.email})
+    isExisting_doc = get_one(users_collection, {"email": user.email})
 
     if isExisting_doc:
             return JSONResponse(content={"message": "User already exists"}, status_code=400)
@@ -64,13 +65,9 @@ async def login(login: Login):
 
 
 @user_router.get("/") # Instead of using the serializer, you can use the "response_model" field
-async def get_all():
-    users_cursor = users_collection.find()  # No 'await' here because the "find" method for the asynIO returns an asyncIO..so you need to first iterate through it 
+async def get_all_users():
 
-    users = []
-    async for user in users_cursor:  # Using 'async for' to iterate through the cursor
-        users.append(user)
-
+    users = await get_all(users_collection)
     res = await many_users_serializer(users)
 
     return {"data": res}
