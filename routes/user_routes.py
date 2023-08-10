@@ -65,6 +65,19 @@ async def login(login: Login):
 
 @user_router.get("/") # Instead of using the serializer, you can use the "response_model" field
 async def get_all():
-    users =  many_users_serializer(users_collection.find())
+    users_cursor = users_collection.find()  # No 'await' here because the "find" method for the asynIO returns an asyncIO..so you need to first iterate through it 
 
-    return {"data" : users}
+    users = []
+    async for user in users_cursor:  # Using 'async for' to iterate through the cursor
+        users.append(user)
+
+    res = await many_users_serializer(users)
+
+    return {"data": res}
+
+
+
+
+
+
+
