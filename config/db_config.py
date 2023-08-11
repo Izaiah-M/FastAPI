@@ -1,7 +1,8 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+import os
 
 try:
-    client = AsyncIOMotorClient("mongodb://localhost:27017")
+    client = AsyncIOMotorClient(os.environ.get("DB_URL"))
     db = client.Trial
     users_collection = db["Users"]
 
