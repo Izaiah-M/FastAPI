@@ -7,7 +7,7 @@ def generate_otp():
 def verify_otp(otp):
     current_time = datetime.now()
 
-    if otp["EAT"] <= current_time or not otp["is_valid"]:
+    if otp["expiresAt"] <= current_time or not otp["is_valid"]:
         return False
     
     return True

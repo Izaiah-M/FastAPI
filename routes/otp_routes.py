@@ -1,7 +1,8 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from models.otp import OTPRequest, OTPVerification
 from helpers.status_codes import STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_500, STATUS_CODE_404
-from config.db_config import otp_collection
+from config.db_config import otp_collection, users_collection
 from helpers.otp import generate_otp, verify_otp
 from datetime import datetime, timedelta
 from repository import repository
@@ -10,8 +11,15 @@ otp = APIRouter(prefix="/api/otp", tags=["OTP"])
 
 @otp.post("/") 
 async def create_otp(req: OTPRequest):
-    if not req.phoneNumber: # consider verifying the phone number as well
+    if not req.phoneNumber: 
         return STATUS_CODE_MISSING_FIELDS_400
+    
+    # consider verifying the phone number as well
+    
+    user_exists = await repository.get_one(users_collection, {"phone": req.phoneNumber})
+
+    if user_exists:
+            return JSONResponse(content={"message": "User already exists"}, status_code=400)
     
     otp = generate_otp()
 
@@ -19,9 +27,9 @@ async def create_otp(req: OTPRequest):
 
     otp_log = {
         "phone": req.phoneNumber,
-        "code": str(otp),
+        "otp": str(otp),
         "is_valid": True,
-        "EAT": expires_at
+        "expiresAt": expires_at
     }
 
     try:
@@ -38,32 +46,29 @@ async def validate_otp(req: OTPVerification):
     if not req.phoneNumber or not req.otp:
         return STATUS_CODE_MISSING_FIELDS_400
     
-    otp_log = await repository.get_one(otp_collection, {"phone" : req.phoneNumber, "code" : req.otp})
+    otp_log = await repository.get_one(otp_collection, {"phone" : req.phoneNumber, "otp" : req.otp})
 
     if not otp_log:
         return STATUS_CODE_404
     
     is_valid = verify_otp(otp_log)
 
+    # print(is_valid)
+
     if not is_valid:
         try:
-            updateResult = await otp_collection.update_one({"phone" : req.phoneNumber, "code" : req.otp},  {"$set": {"is_valid": False}})
+            await otp_collection.update_one({"phone" : req.phoneNumber, "otp" : req.otp},  {"$set": {"is_valid": False}})
 
-            if updateResult.modified_count == 1:
-                return {"message" : "OTP is invalid!"}
-            else:
-                return {"message" : "OTP is invalid"}
+            return JSONResponse(content={"message": "Invalid OTP!"}, status_code=400)
+
         except:
             return STATUS_CODE_500
     
     try:
-        result = await otp_collection.update_one({"phone" : req.phoneNumber, "code" : req.otp},  {"$set": {"is_valid": False}})
+        await otp_collection.update_one({"phone" : req.phoneNumber, "code" : req.otp},  {"$set": {"is_valid": False}})
 
-        if result.modified_count == 1:
-            return {"is_valid" : True}
-        else:
-            return {"is_valid" : False}
-        
+        return {"is_valid" : "Y"}
+       
     except:
         return STATUS_CODE_500
     

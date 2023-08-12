@@ -17,7 +17,7 @@ async def create_user(user: User = Body(...)):
         return STATUS_CODE_MISSING_FIELDS_400
     
     
-    isExisting_doc = await get_one(users_collection, {"email": user.email})
+    isExisting_doc = await get_one(users_collection, {"phone": user.phone})
 
     if isExisting_doc:
             return JSONResponse(content={"message": "User already exists"}, status_code=400)

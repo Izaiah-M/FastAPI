@@ -1,7 +1,7 @@
 
 
-async def get_all(db):
-    data_cursor = db.find()
+async def get_all(collection):
+    data_cursor = collection.find()
 
     res = []
 
@@ -10,8 +10,11 @@ async def get_all(db):
     
     return res
 
-async def get_one(db, query_object : object):
-    data = await db.find_one(query_object)
+async def get_one(collection, query_object : object):
+    data = await collection.find_one(query_object)
 
     return data
 
+
+async def insert_one(collection, query_object : object):
+    pass
