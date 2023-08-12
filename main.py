@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-from routes.user_routes import user_router
+from routes import user_routes, otp_routes
 
 app = FastAPI()
 
 # Registering our routes
-app.include_router(user_router)
+app.include_router(user_routes.user_router)
+app.include_router(otp_routes.otp)
 
 
 

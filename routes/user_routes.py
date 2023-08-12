@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from models.Users import User, Login
 from serializers.user_serializer import single_user_serializer, many_users_serializer
@@ -6,6 +6,7 @@ from config.db_config import users_collection
 from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_404, STATUS_CODE_500
 from helpers.Hashing import get_password_hash, verify_password
 from repository.repository import get_all, get_one
+from helpers.rate_limit import rate_limited
 
 
 user_router = APIRouter(prefix="/api/auth/users", tags=["Users"])

@@ -13,6 +13,7 @@ try:
     client = AsyncIOMotorClient(url)
     db = client.Trial
     users_collection = db["Users"]
+    otp_collection = db["OTP"]
 
     print("Successfully connected to MongoDB")
 

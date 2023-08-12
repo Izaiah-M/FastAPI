@@ -8,6 +8,7 @@ fastapi = "*"
 uvicorn = {version = "*", extras = ["standard"]}
 pymongo = "*"
 motor = "*"
+fastapi-limiter = "*"
 
 [dev-packages]
 
