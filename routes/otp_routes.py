@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from models.otp import OTPRequest, OTPVerification
 from helpers.status_codes import STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_500, STATUS_CODE_404
@@ -6,11 +6,20 @@ from config.db_config import otp_collection, users_collection
 from helpers.otp import generate_otp, verify_otp
 from datetime import datetime, timedelta
 from repository import repository
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+# from fastapi_limiter.depends import RateLimiter
+
+limiter = Limiter(key_func=get_remote_address)
 
 otp = APIRouter(prefix="/api/otp", tags=["OTP"])
 
+# Consider using redis or memcache with fastapi_limiter
+
+# @otp.post("/", dependencies=[Depends(RateLimiter(times=2, seconds=5))]) 
 @otp.post("/") 
-async def create_otp(req: OTPRequest):
+@limiter.limit("2/minute")
+async def create_otp(req: OTPRequest, request: Request):
     if not req.phoneNumber: 
         return STATUS_CODE_MISSING_FIELDS_400
     

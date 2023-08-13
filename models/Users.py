@@ -8,6 +8,7 @@ class User(BaseModel):
     email: EmailStr = Field(...)
     password: str = Field(...)
     bio: Optional[str]
+    phone: str = Field(...)
 
     class Config:
         populate_by_name = True
@@ -17,7 +18,9 @@ class User(BaseModel):
             "example": {
                 "username": "Jane Doe",
                 "email": "jdoe@example.com",
-                "password": "supersecret"
+                "password": "supersecret",
+                "phone": "0722306453",
+                "bio": "bio"
             } 
         }
 # class User(BaseModel):

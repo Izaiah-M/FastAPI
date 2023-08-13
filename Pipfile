@@ -9,6 +9,8 @@ uvicorn = {version = "*", extras = ["standard"]}
 pymongo = "*"
 motor = "*"
 fastapi-limiter = "*"
+redis = "*"
+slowapi = "*"
 
 [dev-packages]
 

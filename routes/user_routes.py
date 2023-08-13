@@ -6,14 +6,14 @@ from config.db_config import users_collection
 from helpers.status_codes import STATUS_CODE_201, STATUS_CODE_MISSING_FIELDS_400, STATUS_CODE_404, STATUS_CODE_500
 from helpers.Hashing import get_password_hash, verify_password
 from repository.repository import get_all, get_one
-from helpers.rate_limit import rate_limited
 
 
 user_router = APIRouter(prefix="/api/auth/users", tags=["Users"])
 
 @user_router.post("/create", status_code=201)
 async def create_user(user: User = Body(...)):
-    if not user.username or not user.email or not user.password:
+    # print(user)
+    if not user.username or not user.email or not user.password or not user.phone:
         return STATUS_CODE_MISSING_FIELDS_400
     
     
@@ -27,7 +27,8 @@ async def create_user(user: User = Body(...)):
     created_user = {
                     "username": user.username,
                     "email": user.email,
-                    "password": hashed_pwd
+                    "password": hashed_pwd,
+                    "phone": user.phone
                 }
     try:
         new = await users_collection.insert_one(created_user)
