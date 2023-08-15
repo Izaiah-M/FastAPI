@@ -12,6 +12,8 @@ try:
     print(url)
     client = AsyncIOMotorClient(url)
     db = client.Trial
+
+    # Collections
     users_collection = db["Users"]
     otp_collection = db["OTP"]
 
