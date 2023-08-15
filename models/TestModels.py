@@ -7,6 +7,7 @@ class Role(BaseModel):
     name: str
     desc: str
 
+
 class Test(BaseModel):
     username: str
     email: Optional[str]
